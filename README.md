@@ -135,10 +135,11 @@ def as_log_line(self) -> str:
 
 ## Provenance
 
-A sanitised extract from a private realtime voice tool for interview practice.
-Provider names, UI, and deployment details are removed. The capture validation,
-the latency gate semantics and the metadata-only metrics typing are the real
-implementation.
+A standalone public proof derived from a private realtime voice
+interview-practice tool. It preserves the bounded-capture, fail-closed latency,
+and metadata-only logging constraints while removing provider integration, UI,
+hardware routing, and deployment-specific code. The public module is
+intentionally smaller than the private system.
 
 The full system is not public.
 
