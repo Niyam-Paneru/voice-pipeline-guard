@@ -1,0 +1,69 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 900 400" font-family="ui-monospace, 'Cascadia Mono', Consolas, monospace" role="img" aria-label="Audio capture is validated with a bounded read before any buffer is materialised. Stages are timed against per-stage budgets. The latency gate fails closed: within budget is displayed, exceeded or incomplete is suppressed.">
+  <defs>
+    <marker id="ar" viewBox="0 0 10 10" refX="9" refY="5" markerWidth="7" markerHeight="7" orient="auto">
+      <path d="M0 0 L10 5 L0 10 z" fill="#8a938f"/>
+    </marker>
+    <marker id="arStop" viewBox="0 0 10 10" refX="9" refY="5" markerWidth="7" markerHeight="7" orient="auto">
+      <path d="M0 0 L10 5 L0 10 z" fill="#b64730"/>
+    </marker>
+  </defs>
+
+  <rect width="900" height="400" fill="#f4efe4"/>
+
+  <g fill="none" stroke="#8a938f" stroke-width="1.6" marker-end="url(#ar)">
+    <path d="M112 88 H170"/>
+    <path d="M340 88 H398"/>
+    <path d="M568 88 H626"/>
+  </g>
+
+  <!-- bounded read -->
+  <rect x="12" y="60" width="100" height="56" rx="4" fill="#11161b"/>
+  <text x="62" y="80" fill="#f4efe4" font-size="11" text-anchor="middle">source</text>
+  <text x="62" y="96" fill="#9da6a7" font-size="9" text-anchor="middle">400 MB</text>
+  <text x="62" y="109" fill="#d99b2b" font-size="9" text-anchor="middle">untrusted</text>
+
+  <!-- validate -->
+  <rect x="170" y="52" width="170" height="72" rx="4" fill="#11161b"/>
+  <text x="255" y="74" fill="#f4efe4" font-size="12" text-anchor="middle">validate</text>
+  <text x="255" y="91" fill="#9da6a7" font-size="9" text-anchor="middle">read max_bytes + 1</text>
+  <text x="255" y="106" fill="#9da6a7" font-size="9" text-anchor="middle">riff · rate · channels</text>
+  <text x="255" y="119" fill="#d99b2b" font-size="9" text-anchor="middle">1025 bytes, not 26 M</text>
+
+  <!-- stages -->
+  <rect x="398" y="52" width="170" height="72" rx="4" fill="#11161b"/>
+  <text x="483" y="74" fill="#f4efe4" font-size="12" text-anchor="middle">stages</text>
+  <text x="483" y="91" fill="#9da6a7" font-size="9" text-anchor="middle">transcribe · budget 4000</text>
+  <text x="483" y="106" fill="#9da6a7" font-size="9" text-anchor="middle">retrieve · budget 200</text>
+  <text x="483" y="119" fill="#b64730" font-size="9" text-anchor="middle">completion is optional</text>
+
+  <!-- gate -->
+  <rect x="626" y="52" width="150" height="72" rx="4" fill="#2e7077"/>
+  <text x="701" y="78" fill="#f4efe4" font-size="12" text-anchor="middle">latency gate</text>
+  <text x="701" y="97" fill="#dff0f0" font-size="9" text-anchor="middle">fails closed</text>
+  <text x="701" y="112" fill="#dff0f0" font-size="9" text-anchor="middle">unknown ≠ pass</text>
+
+  <!-- suppression branches -->
+  <g fill="none" stroke="#b64730" stroke-width="1.6" stroke-dasharray="5 4" marker-end="url(#arStop)">
+    <path d="M255 124 V186"/>
+    <path d="M701 124 V186"/>
+  </g>
+
+  <rect x="12" y="186" width="330" height="46" rx="4" fill="#fbf3ee" stroke="#b64730" stroke-width="1.4"/>
+  <text x="177" y="205" fill="#b64730" font-size="11" text-anchor="middle">rejected · specific reason</text>
+  <text x="177" y="220" fill="#8a6258" font-size="9" text-anchor="middle">never "invalid audio"</text>
+
+  <rect x="394" y="186" width="382" height="46" rx="4" fill="#fbf3ee" stroke="#b64730" stroke-width="1.4"/>
+  <text x="585" y="205" fill="#b64730" font-size="11" text-anchor="middle">suppressed · exceeded_budget | incomplete</text>
+  <text x="585" y="220" fill="#8a6258" font-size="9" text-anchor="middle">the answer is correct and the product is still broken</text>
+
+  <!-- metrics -->
+  <rect x="12" y="266" width="764" height="58" rx="4" fill="#11161b"/>
+  <text x="30" y="288" fill="#f4efe4" font-size="11">metrics carry no transcript</text>
+  <text x="30" y="307" fill="#9da6a7" font-size="9">five fields, all numeric or boolean · no field could hold transcript text · allowlisted log line</text>
+  <g fill="none" stroke="#8a938f" stroke-width="1.4" marker-end="url(#ar)">
+    <path d="M483 124 V266"/>
+  </g>
+
+  <text x="18" y="358" fill="#20211d" font-size="12">In a realtime system, "we don't know" is a state you must handle explicitly.</text>
+  <text x="18" y="378" fill="#6d6a61" font-size="9">voice-pipeline-guard · sanitised extract · no audio is processed</text>
+</svg>
