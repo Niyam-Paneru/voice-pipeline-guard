@@ -38,4 +38,6 @@ Missing completion time means the result is **incomplete**. Over budget means **
 
 The public slice contains no provider SDK, live audio, transcript, API key, or deployment plumbing.
 
+Want to inspect the failure path? Read the [invariants](docs/invariants.md), [failure modes](docs/failure-modes.md), [latency contract](docs/latency-contract.md), and [late-answer walkthrough](docs/walkthrough.md).
+
 > “Eventually” is not a realtime SLA.
