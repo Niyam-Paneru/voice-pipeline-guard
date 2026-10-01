@@ -32,7 +32,15 @@ def wav(*, frames: int = 4_800, rate: int = 48_000, channels: int = 1) -> bytes:
 
 
 def reader(payload: bytes):
-    return lambda n: payload[:n]
+    offset = 0
+
+    def _read(n: int) -> bytes:
+        nonlocal offset
+        chunk = payload[offset : offset + n]
+        offset += len(chunk)
+        return chunk
+
+    return _read
 
 
 def section(title: str, sub: str = "") -> None:
