@@ -41,3 +41,12 @@ The public slice contains no provider SDK, live audio, transcript, API key, or d
 Want to inspect the failure path? Read the [invariants](docs/invariants.md), [failure modes](docs/failure-modes.md), [latency contract](docs/latency-contract.md), and [late-answer walkthrough](docs/walkthrough.md).
 
 > “Eventually” is not a realtime SLA.
+
+## Inspect deeper
+
+- [Design overview](docs/overview.md)
+- [Why the design looks this way](docs/decisions.md)
+- [How it fails on purpose](docs/failure-modes.md)
+- [Security / privacy boundary](SECURITY.md)
+
+The README is the front door. The interesting arguments are in those files.
