@@ -1,7 +1,7 @@
 # Security and privacy
 
-This public package contains no live audio, transcript data, provider credentials, or production endpoints.
+The package contains no live audio, transcript data, provider credentials, or production endpoint.
 
-The main safety properties demonstrated here are bounded reads, explicit media rejection, fail-closed latency handling, and metadata-only metrics.
+The implemented privacy boundary is narrow and inspectable: capture is size/format bounded before acceptance, display requires complete timing evidence inside budget, and `UtteranceMetrics` has no field for transcript text, answer text, or audio bytes.
 
-A production voice system still needs transport authentication, provider webhook verification, rate limits, PHI/PII controls, encrypted storage where applicable, retention rules, and incident logging.
+A real voice deployment would still need transport authentication, provider webhook validation, rate limits, appropriate PII/PHI handling, storage/retention controls, and incident logging. None of those are claimed by this repository.
