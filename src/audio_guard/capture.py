@@ -15,13 +15,33 @@ from .models import (
 )
 
 
+def _read_bounded(read, max_bytes: int) -> bytes:
+    chunks: list[bytes] = []
+    remaining = max_bytes + 1
+
+    while remaining > 0:
+        chunk = read(remaining)
+        if not chunk:
+            break
+        if not isinstance(chunk, (bytes, bytearray)):
+            raise TypeError("audio_reader_must_return_bytes")
+        data = bytes(chunk)
+        chunks.append(data)
+        remaining -= len(data)
+
+    return b"".join(chunks)
+
+
 def read_capture(
     read,
     *,
     max_bytes: int = MAX_CAPTURE_BYTES,
     max_seconds: int = MAX_CAPTURE_SECONDS,
 ) -> CaptureResult:
-    probe = read(max_bytes + 1)
+    if max_bytes < 1:
+        raise ValueError("max_bytes_must_be_positive")
+
+    probe = _read_bounded(read, max_bytes)
     if len(probe) > max_bytes:
         return CaptureResult(accepted=False, rejection=Rejection.TOO_LARGE)
 
