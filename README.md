@@ -1,6 +1,6 @@
 # Voice Pipeline Guard
 
-A small Python proof of two realtime voice boundaries: **bound capture before accepting it**, and **suppress output when timing evidence is missing or over budget**.
+A Python implementation of two realtime voice boundaries: **bound capture before accepting it**, and **suppress output when timing evidence is missing or over budget**.
 
 This public repo uses synthetic WAV inputs only. It does **not** include a live provider, microphone stream, transcript pipeline, credentials, or deployment integration.
 
