@@ -1,6 +1,6 @@
 # voice-pipeline-guard
 
-**Bounded audio capture and a fail-closed latency gate for realtime voice pipelines.**
+**Bounded audio capture and a fail-closed latency gate for realtime voice pipelines.**\n\n**A correct answer delivered after the caller hangs up is technically impressive and commercially useless.**
 
 A realtime voice agent has a failure mode unit tests do not catch: everything
 works, but slowly. The transcript is correct, the answer is correct, and the user
@@ -10,7 +10,7 @@ This module treats **timing as a correctness property**. A stage that overruns i
 budget has not been "slow" — it has failed, and the pipeline says so instead of
 passing a stale result forward.
 
-![Architecture: audio is validated with a bounded read before any buffer is materialised. Stages are timed against per-stage budgets. The latency gate fails closed.](docs/architecture.svg)
+```text\naudio -> bounded read -> validate -> transcribe -> retrieve -> display?\n          TOO BIG? STOP                 TOO SLOW? STOP\n```
 
 ```bash
 pip install pytest
