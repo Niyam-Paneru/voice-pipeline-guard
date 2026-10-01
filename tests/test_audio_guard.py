@@ -36,10 +36,14 @@ def build_wav(
 
 
 def reader_for(payload: bytes, *, cap: int | None = None):
-    limit = len(payload) if cap is None else cap
+    available = payload if cap is None else payload[:cap]
+    offset = 0
 
     def _read(n: int) -> bytes:
-        return payload[: min(n, limit)]
+        nonlocal offset
+        chunk = available[offset : offset + n]
+        offset += len(chunk)
+        return chunk
 
     return _read
 
@@ -75,6 +79,22 @@ def test_rejects_oversized_input_without_reading_it() -> None:
     assert not result.accepted
     assert result.rejection is Rejection.TOO_LARGE
     assert asked == [1_025], "must probe exactly one byte past the limit"
+
+
+def test_accepts_chunked_reader_without_treating_first_chunk_as_the_body() -> None:
+    payload = build_wav(frames=4_800)
+    offset = 0
+
+    def read(n: int) -> bytes:
+        nonlocal offset
+        width = min(n, 7)
+        chunk = payload[offset : offset + width]
+        offset += len(chunk)
+        return chunk
+
+    result = read_capture(read)
+    assert result.accepted
+    assert result.audio is not None
 
 
 def test_rejects_non_wav() -> None:
