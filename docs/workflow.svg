@@ -1,34 +1,117 @@
-<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 1200 520" role="img" aria-labelledby="t d">
-<title id="t">Voice pipeline guard</title><desc id="d">Bounded audio enters validation, then latency and completeness gates determine whether output may display.</desc>
-<rect width="1200" height="520" fill="#f5f5f1"/>
-<text x="56" y="62" fill="#71716a" font-family="Arial,sans-serif" font-size="13" letter-spacing="3">VOICE PIPELINE GUARD</text>
-<text x="56" y="105" fill="#171714" font-family="Georgia,serif" font-size="34">Correct can still be too late.</text>
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 1280 820" role="img" aria-labelledby="title desc">
+  <title id="title">Voice Pipeline Guard data and timing pipeline</title>
+  <desc id="desc">A bounded reader is checked for size and WAV validity before capture is accepted. Separately, recorded processing stages must have valid completion times and stay within their budgets before output is displayable. Missing or late timing suppresses display. UtteranceMetrics is a separate metadata-only schema with no transcript, answer text, or audio-bytes field.</desc>
+  <defs>
+    <marker id="arrow" viewBox="0 0 10 10" refX="9" refY="5" markerWidth="8" markerHeight="8" orient="auto-start-reverse">
+      <path d="M0 0 L10 5 L0 10 z" fill="#1f2937"/>
+    </marker>
+    <style>
+      .bg{fill:#fff}.lane{fill:#f8fafc;stroke:#cbd5e1;stroke-width:1.5}.box{fill:#fff;stroke:#1f2937;stroke-width:2}.decision{fill:#fff;stroke:#1f2937;stroke-width:2}.reject{fill:#fff7ed;stroke:#9a3412;stroke-width:2}.suppress{fill:#fef2f2;stroke:#991b1b;stroke-width:2}.pass{fill:#f0fdf4;stroke:#166534;stroke-width:2}.privacy{fill:#fff;stroke:#475569;stroke-width:2;stroke-dasharray:7 6}.line{fill:none;stroke:#1f2937;stroke-width:2;marker-end:url(#arrow)}.h{font:700 20px Arial,sans-serif;fill:#111827}.t{font:14px Arial,sans-serif;fill:#374151}.small{font:12px Arial,sans-serif;fill:#4b5563}.label{font:700 12px Arial,sans-serif;fill:#475569;letter-spacing:1.4px}.yes{font:700 12px Arial,sans-serif;fill:#166534}.no{font:700 12px Arial,sans-serif;fill:#991b1b}
+    </style>
+  </defs>
 
-<rect x="58" y="175" width="185" height="95" rx="14" fill="#fff" stroke="#171714" stroke-width="2"/>
-<text x="80" y="206" fill="#71716a" font-family="Arial,sans-serif" font-size="12" letter-spacing="2">INPUT</text>
-<text x="80" y="238" fill="#171714" font-family="Arial,sans-serif" font-size="20" font-weight="700">bounded audio</text>
+  <rect class="bg" width="1280" height="820"/>
+  <text x="48" y="46" class="h">Voice Pipeline Guard — data + timing decisions</text>
+  <text x="48" y="70" class="t">Capture validation and latency eligibility are independent boundaries.</text>
 
-<rect x="315" y="145" width="220" height="155" rx="16" fill="#fff" stroke="#171714" stroke-width="2"/>
-<text x="340" y="178" fill="#71716a" font-family="Arial,sans-serif" font-size="12" letter-spacing="2">VALIDATION</text>
-<text x="340" y="210" fill="#171714" font-family="Georgia,serif" font-size="24">Can we trust it?</text>
-<text x="340" y="246" fill="#4e4e48" font-family="Arial,sans-serif" font-size="14">size</text>
-<text x="405" y="246" fill="#4e4e48" font-family="Arial,sans-serif" font-size="14">format</text>
-<text x="470" y="246" fill="#4e4e48" font-family="Arial,sans-serif" font-size="14">duration</text>
+  <rect x="32" y="96" width="1216" height="268" rx="10" class="lane"/>
+  <text x="52" y="123" class="label">1 · CAPTURE / INPUT VALIDATION</text>
 
-<rect x="615" y="145" width="220" height="155" rx="16" fill="#fff" stroke="#171714" stroke-width="2"/>
-<text x="640" y="178" fill="#71716a" font-family="Arial,sans-serif" font-size="12" letter-spacing="2">TIMING</text>
-<text x="640" y="210" fill="#171714" font-family="Georgia,serif" font-size="24">Can we use it now?</text>
-<text x="640" y="246" fill="#4e4e48" font-family="Arial,sans-serif" font-size="14">all stages complete</text>
-<text x="640" y="272" fill="#4e4e48" font-family="Arial,sans-serif" font-size="14">inside budget</text>
+  <rect x="58" y="172" width="140" height="82" rx="8" class="box"/>
+  <text x="128" y="203" text-anchor="middle" class="h">reader</text>
+  <text x="128" y="227" text-anchor="middle" class="small">audio bytes</text>
 
-<rect x="915" y="175" width="225" height="95" rx="14" fill="#e4edb0" stroke="#596e35" stroke-width="2"/>
-<text x="940" y="206" fill="#596e35" font-family="Arial,sans-serif" font-size="12" letter-spacing="2">DISPLAY</text>
-<text x="940" y="238" fill="#171714" font-family="Arial,sans-serif" font-size="20" font-weight="700">only if both pass</text>
+  <rect x="238" y="160" width="170" height="106" rx="8" class="box"/>
+  <text x="323" y="192" text-anchor="middle" class="h">bounded read</text>
+  <text x="323" y="216" text-anchor="middle" class="small">request max_bytes + 1</text>
+  <text x="323" y="238" text-anchor="middle" class="small">detect overflow before accept</text>
 
-<g stroke="#171714" stroke-width="2" fill="none"><path d="M243 222 H315"/><path d="M535 222 H615"/><path d="M835 222 H915"/></g>
-<g fill="#171714"><path d="M307 216 l10 6 -10 6z"/><path d="M607 216 l10 6 -10 6z"/><path d="M907 216 l10 6 -10 6z"/></g>
+  <polygon points="500,160 580,213 500,266 420,213" class="decision"/>
+  <text x="500" y="205" text-anchor="middle" class="t">bytes read</text>
+  <text x="500" y="226" text-anchor="middle" class="t">&gt; max?</text>
 
-<rect x="315" y="360" width="520" height="72" rx="14" fill="#262722"/>
-<text x="340" y="389" fill="#d8d8d1" font-family="Arial,sans-serif" font-size="12" letter-spacing="2">FAIL CLOSED</text>
-<text x="340" y="417" fill="#fff" font-family="Georgia,serif" font-size="20">late or unknown timing suppresses output</text>
+  <rect x="626" y="144" width="200" height="138" rx="8" class="box"/>
+  <text x="726" y="176" text-anchor="middle" class="h">validate WAV</text>
+  <text x="726" y="200" text-anchor="middle" class="small">RIFF/WAVE · PCM · mono</text>
+  <text x="726" y="221" text-anchor="middle" class="small">48 kHz · 16-bit · nonempty</text>
+  <text x="726" y="242" text-anchor="middle" class="small">duration bound · complete frames</text>
+
+  <polygon points="930,160 1010,213 930,266 850,213" class="decision"/>
+  <text x="930" y="218" text-anchor="middle" class="t">valid?</text>
+
+  <rect x="1060" y="172" width="160" height="82" rx="8" class="pass"/>
+  <text x="1140" y="203" text-anchor="middle" class="h">accepted</text>
+  <text x="1140" y="227" text-anchor="middle" class="small">CapturedAudio</text>
+
+  <rect x="425" y="300" width="150" height="44" rx="7" class="reject"/>
+  <text x="500" y="327" text-anchor="middle" class="t">reject: too_large</text>
+
+  <rect x="815" y="294" width="230" height="56" rx="7" class="reject"/>
+  <text x="930" y="317" text-anchor="middle" class="small">reject with specific reason</text>
+  <text x="930" y="336" text-anchor="middle" class="small">malformed / unsupported / too_long</text>
+
+  <path d="M198 213 H238" class="line"/>
+  <path d="M408 213 H420" class="line"/>
+  <path d="M580 213 H626" class="line"/>
+  <text x="594" y="200" class="yes">NO</text>
+  <path d="M500 266 V300" class="line"/>
+  <text x="512" y="287" class="no">YES</text>
+  <path d="M826 213 H850" class="line"/>
+  <path d="M1010 213 H1060" class="line"/>
+  <text x="1025" y="200" class="yes">YES</text>
+  <path d="M930 266 V294" class="line"/>
+  <text x="942" y="287" class="no">NO</text>
+
+  <rect x="32" y="390" width="900" height="278" rx="10" class="lane"/>
+  <text x="52" y="417" class="label">2 · PROCESSING / TIMING COMPLETENESS → 3 · DISPLAY ELIGIBILITY</text>
+
+  <rect x="60" y="486" width="180" height="92" rx="8" class="box"/>
+  <text x="150" y="517" text-anchor="middle" class="h">record stages</text>
+  <text x="150" y="541" text-anchor="middle" class="small">name · budget · start</text>
+  <text x="150" y="562" text-anchor="middle" class="small">completion may be missing</text>
+
+  <polygon points="360,474 455,532 360,590 265,532" class="decision"/>
+  <text x="360" y="522" text-anchor="middle" class="t">all stages have</text>
+  <text x="360" y="543" text-anchor="middle" class="t">valid completion?</text>
+
+  <polygon points="600,474 695,532 600,590 505,532" class="decision"/>
+  <text x="600" y="522" text-anchor="middle" class="t">any elapsed</text>
+  <text x="600" y="543" text-anchor="middle" class="t">&gt; budget?</text>
+
+  <rect x="750" y="486" width="150" height="92" rx="8" class="pass"/>
+  <text x="825" y="516" text-anchor="middle" class="h">display</text>
+  <text x="825" y="540" text-anchor="middle" class="small">WITHIN_BUDGET</text>
+  <text x="825" y="560" text-anchor="middle" class="small">displayable = true</text>
+
+  <rect x="270" y="612" width="180" height="40" rx="7" class="suppress"/>
+  <text x="360" y="637" text-anchor="middle" class="small">INCOMPLETE → suppress</text>
+
+  <rect x="520" y="612" width="160" height="40" rx="7" class="suppress"/>
+  <text x="600" y="637" text-anchor="middle" class="small">LATE → suppress</text>
+
+  <path d="M240 532 H265" class="line"/>
+  <path d="M455 532 H505" class="line"/>
+  <text x="471" y="519" class="yes">YES</text>
+  <path d="M360 590 V612" class="line"/>
+  <text x="372" y="606" class="no">NO / UNKNOWN</text>
+  <path d="M695 532 H750" class="line"/>
+  <text x="713" y="519" class="yes">NO</text>
+  <path d="M600 590 V612" class="line"/>
+  <text x="612" y="606" class="no">YES</text>
+
+  <rect x="956" y="390" width="292" height="278" rx="10" class="privacy"/>
+  <text x="980" y="416" class="label">4 · METADATA-ONLY LOGGING</text>
+  <text x="980" y="436" class="label">PRIVACY BOUNDARY</text>
+  <text x="980" y="462" class="h">UtteranceMetrics</text>
+  <text x="980" y="494" class="t">Allowed schema:</text>
+  <text x="996" y="520" class="small">• audio_to_final_ms</text>
+  <text x="996" y="542" class="small">• answer_retrieval_ms</text>
+  <text x="996" y="564" class="small">• total_to_display_ms</text>
+  <text x="996" y="586" class="small">• displayable</text>
+  <text x="996" y="608" class="small">• dropped_audio_seconds</text>
+  <text x="980" y="634" class="small">No transcript or answer-text field.</text>
+  <text x="980" y="654" class="small">No audio-bytes field.</text>
+
+  <text x="48" y="718" class="small">Implementation boundary: capture.py validates input; latency.py produces the display verdict; metrics.py defines a separate schema.</text>
+  <text x="48" y="742" class="small">Caller-owned processing/provider integration is outside this public repo. The diagram does not imply live audio or automatic module wiring.</text>
 </svg>

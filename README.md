@@ -1,54 +1,36 @@
 # Voice Pipeline Guard
 
-**A correct answer delivered after the caller hangs up is technically impressive and commercially useless.**
+A Python implementation of two realtime voice boundaries: **bound capture before accepting it**, and **suppress output when timing evidence is missing or over budget**.
 
-This repo isolates two boundaries from realtime voice work:
+This public repo uses synthetic WAV inputs only. It does **not** include a live provider, microphone stream, transcript pipeline, credentials, or deployment integration.
 
-1. audio limits must be enforced **before** reading the whole payload;
-2. latency can make an otherwise correct result invalid.
+## Run / verify
 
-![Voice pipeline workflow](docs/workflow.svg)
+```bash
+python -m compileall -q src
+python -m pytest
+PYTHONPATH=src python -m audio_guard.demo
+```
 
-## What the code protects
+![Data and timing pipeline](docs/workflow.svg)
 
-- oversized capture reads;
-- malformed or unsupported WAV input;
-- incomplete pipeline stages;
-- over-budget stages;
-- transcript-shaped data accidentally entering metrics.
+## What is enforced
 
-The package is now split by responsibility:
+1. **Capture/input validation** — `read_capture()` requests a bounded probe, rejects oversized input, and validates the WAV contract before returning `CapturedAudio`.
+2. **Processing/timing completeness** — callers record stage start/completion times and budgets in `LatencyGate`.
+3. **Display eligibility** — no stages, missing/invalid completion time, or any over-budget stage makes `displayable == False`; only `WITHIN_BUDGET` may display.
+4. **Metadata-only logging boundary** — `UtteranceMetrics` can carry timing/drop/display metadata, but its schema has no transcript, answer text, or audio-bytes field.
 
-| Area | Responsibility |
-|---|---|
-| `models.py` | constants, rejection reasons, result types |
-| `capture.py` | bounded read + WAV validation |
-| `latency.py` | stage timing and fail-closed display gate |
-| `metrics.py` | metadata-only log record |
-| `tests/` | capture, latency, and privacy behavior |
-| `docs/` | design reasoning |
+Capture rejection reasons include `too_large`, `not_a_wav`, unsupported WAV properties, `empty`, `truncated`, and `too_long`. The tests exercise the capture, timing, and telemetry boundaries directly.
 
-## Why “unknown” is not good enough
+## Review the implementation
 
-Realtime code often has a dangerous default: if timing data is missing, the UI carries on.
+- [`src/audio_guard/capture.py`](src/audio_guard/capture.py) — bounded read + WAV validation
+- [`src/audio_guard/latency.py`](src/audio_guard/latency.py) — stage timing + display verdict
+- [`src/audio_guard/metrics.py`](src/audio_guard/metrics.py) — metadata-only log schema
+- [`tests/`](tests/) — failure-path and privacy checks
+- [`docs/latency-contract.md`](docs/latency-contract.md) — verdict contract
 
-This repo does the opposite.
+## Scope
 
-Missing completion time means the result is **incomplete**. Over budget means **suppress**. Only fully accounted-for stages inside budget are displayable.
-
-The public slice contains no provider SDK, live audio, transcript, API key, or deployment plumbing.
-
-Want to inspect the failure path? Read the [invariants](docs/invariants.md), [failure modes](docs/failure-modes.md), [latency contract](docs/latency-contract.md), and [late-answer walkthrough](docs/walkthrough.md).
-
-> “Eventually” is not a realtime SLA.
-
-## Inspect deeper
-
-- [Design overview](docs/overview.md)
-- [Why the design looks this way](docs/decisions.md)
-- [Invariants that must survive refactors](docs/invariants.md)
-- [How it fails on purpose](docs/failure-modes.md)
-- [Security / privacy boundary](SECURITY.md)
-- [Where this public slice came from](PROVENANCE.md)
-
-The README is the front door. The interesting arguments are in those files.
+The code demonstrates guard behavior under synthetic inputs. It does not claim production latency, call quality, provider uptime, or current deployment. See [`PROVENANCE.md`](PROVENANCE.md) and [`SECURITY.md`](SECURITY.md) for the public/private boundary.
