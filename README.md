@@ -2,32 +2,47 @@
 
 A Python implementation of two realtime voice boundaries: **bound capture before accepting it**, and **suppress output when timing evidence is missing or over budget**.
 
-This public repo uses synthetic WAV inputs only. It does **not** include a live provider, microphone stream, transcript pipeline, credentials, or deployment integration.
+**In realtime systems, “eventually” is a suspiciously expensive word.**
 
-*In realtime systems, “eventually” is a suspiciously expensive word.*
+This is a **public sample from my private voice-system work**. The sample uses synthetic WAV inputs to make the guards easy to inspect. I can build and adapt the surrounding voice pipelines and provider integrations; live audio, transcripts, credentials, and deployment plumbing stay private.
 
-## Data and timing flow
+## Capture: accept only valid, bounded audio
 
 ```mermaid
 flowchart LR
-    A["bounded capture<br/>read max_bytes + 1"] --> B{"oversized?"}
-    B -- yes --> R["reject<br/>too_large"]
-    B -- no --> C{"WAV contract valid?"}
-    C -- no --> X["reject<br/>malformed / unsupported / too_long"]
-    C -- yes --> D["CapturedAudio"]
-    D --> E["timing stages<br/>start · completion · budget"]
-    E --> F{"all stages complete?"}
-    F -- no --> S["suppress<br/>INCOMPLETE"]
-    F -- yes --> G{"every stage within budget?"}
-    G -- no --> L["suppress<br/>EXCEEDED_BUDGET"]
-    G -- yes --> H["display<br/>WITHIN_BUDGET"]
-
-    subgraph P["metadata-only privacy boundary"]
-        M["UtteranceMetrics<br/>timing + drop + display metadata only<br/>no transcript, answer text, or audio bytes"]
-    end
+    A["<b>Bounded read</b><br/>max_bytes + 1"] --> B{"Oversized?"}
+    B -- Yes --> R["<b>Reject</b><br/>too_large"]
+    B -- No --> C{"Valid WAV?"}
+    C -- No --> X["<b>Reject WAV</b><br/>invalid format or duration"]
+    C -- Yes --> D["<b>Accept</b><br/>CapturedAudio"]
+    classDef input fill:#e8e6df,stroke:#55534a,color:#20201d,stroke-width:2px;
+    classDef pass fill:#d2e5d8,stroke:#38734d,color:#183923,stroke-width:2px;
+    classDef stop fill:#f4dadd,stroke:#b14253,color:#611c29,stroke-width:2px;
+    class A,B,C input;
+    class D pass;
+    class R,X stop;
 ```
 
-The metrics box is a separate schema boundary, not an implied live logging pipeline. No provider, microphone, transcript, or transport step appears because this repository does not implement those pieces.
+## Timing: decide whether output may display
+
+Callers record timing separately from capture. A complete verdict requires at least one stage with valid start and completion times.
+
+```mermaid
+flowchart LR
+    E["<b>Stage timings</b><br/>start, end, budget"] --> F{"Complete?"}
+    F -- No --> S["<b>Suppress</b><br/>INCOMPLETE"]
+    F -- Yes --> G{"In budget?"}
+    G -- No --> L["<b>Suppress</b><br/>EXCEEDED_BUDGET"]
+    G -- Yes --> H["<b>Display eligible</b><br/>WITHIN_BUDGET"]
+    classDef input fill:#e8e6df,stroke:#55534a,color:#20201d,stroke-width:2px;
+    classDef pass fill:#d2e5d8,stroke:#38734d,color:#183923,stroke-width:2px;
+    classDef stop fill:#f4dadd,stroke:#b14253,color:#611c29,stroke-width:2px;
+    class E,F,G input;
+    class H pass;
+    class S,L stop;
+```
+
+`UtteranceMetrics` is a separate metadata-only schema: timing, dropped audio, and displayability. It has no transcript, answer-text, or audio-bytes field. These diagrams show the public guards; provider, microphone, transcript, and transport integration belong to the surrounding system.
 
 ## What is enforced
 
