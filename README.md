@@ -9,11 +9,11 @@ This is a **public sample from my private voice-system work**. The sample uses s
 ## Capture: accept only valid, bounded audio
 
 ```mermaid
-flowchart TB
+flowchart LR
     A["<b>Bounded read</b><br/>max_bytes + 1"] --> B{"Oversized?"}
     B -- Yes --> R["<b>Reject</b><br/>too_large"]
-    B -- No --> C{"WAV contract valid?"}
-    C -- No --> X["<b>Reject</b><br/>malformed, unsupported<br/>or outside duration limits"]
+    B -- No --> C{"Valid WAV?"}
+    C -- No --> X["<b>Reject WAV</b><br/>invalid format or duration"]
     C -- Yes --> D["<b>Accept</b><br/>CapturedAudio"]
     classDef input fill:#e8e6df,stroke:#55534a,color:#20201d,stroke-width:2px;
     classDef pass fill:#d2e5d8,stroke:#38734d,color:#183923,stroke-width:2px;
@@ -25,13 +25,13 @@ flowchart TB
 
 ## Timing: decide whether output may display
 
-Callers record timing separately from capture. The gate evaluates the stages supplied to it.
+Callers record timing separately from capture. A complete verdict requires at least one stage with valid start and completion times.
 
 ```mermaid
-flowchart TB
-    E["<b>Record stages</b><br/>start, completion, budget"] --> F{"At least one stage<br/>and all timings complete?"}
+flowchart LR
+    E["<b>Stage timings</b><br/>start, end, budget"] --> F{"Complete?"}
     F -- No --> S["<b>Suppress</b><br/>INCOMPLETE"]
-    F -- Yes --> G{"Every stage within budget?"}
+    F -- Yes --> G{"In budget?"}
     G -- No --> L["<b>Suppress</b><br/>EXCEEDED_BUDGET"]
     G -- Yes --> H["<b>Display eligible</b><br/>WITHIN_BUDGET"]
     classDef input fill:#e8e6df,stroke:#55534a,color:#20201d,stroke-width:2px;
