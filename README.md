@@ -9,15 +9,24 @@ This is a **public sample from my private voice-system work**. The sample uses s
 ## Capture: accept only valid, bounded audio
 
 ```mermaid
-flowchart LR
-    A["<b>Bounded read</b><br/>max_bytes + 1"] --> B{"Oversized?"}
-    B -- Yes --> R["<b>Reject</b><br/>too_large"]
+---
+config:
+  flowchart:
+    curve: linear
+    nodeSpacing: 28
+    rankSpacing: 42
+---
+flowchart TB
+    accTitle: Capture: accept only valid, bounded audio
+    accDescr: Decision flow for capture: accept only valid, bounded audio.
+    A["Bounded read<br/>max_bytes + 1"] --> B{"Oversized?"}
+    B -- Yes --> R["Reject<br/>too_large"]
     B -- No --> C{"Valid WAV?"}
-    C -- No --> X["<b>Reject WAV</b><br/>invalid format or duration"]
-    C -- Yes --> D["<b>Accept</b><br/>CapturedAudio"]
-    classDef input fill:#e8e6df,stroke:#55534a,color:#20201d,stroke-width:2px;
-    classDef pass fill:#d2e5d8,stroke:#38734d,color:#183923,stroke-width:2px;
-    classDef stop fill:#f4dadd,stroke:#b14253,color:#611c29,stroke-width:2px;
+    C -- No --> X["Reject WAV<br/>invalid format or duration"]
+    C -- Yes --> D["Accept<br/>CapturedAudio"]
+    classDef input stroke-width:1.5px;
+    classDef pass stroke-width:2.5px;
+    classDef stop stroke-width:2px,stroke-dasharray:5 3;
     class A,B,C input;
     class D pass;
     class R,X stop;
@@ -28,15 +37,24 @@ flowchart LR
 Callers record timing separately from capture. A complete verdict requires at least one stage with valid start and completion times.
 
 ```mermaid
-flowchart LR
-    E["<b>Stage timings</b><br/>start, end, budget"] --> F{"Complete?"}
-    F -- No --> S["<b>Suppress</b><br/>INCOMPLETE"]
+---
+config:
+  flowchart:
+    curve: linear
+    nodeSpacing: 28
+    rankSpacing: 42
+---
+flowchart TB
+    accTitle: Timing: decide whether output may display
+    accDescr: Decision flow for timing: decide whether output may display.
+    E["Stage timings<br/>start, end, budget"] --> F{"Complete?"}
+    F -- No --> S["Suppress<br/>INCOMPLETE"]
     F -- Yes --> G{"In budget?"}
-    G -- No --> L["<b>Suppress</b><br/>EXCEEDED_BUDGET"]
-    G -- Yes --> H["<b>Display eligible</b><br/>WITHIN_BUDGET"]
-    classDef input fill:#e8e6df,stroke:#55534a,color:#20201d,stroke-width:2px;
-    classDef pass fill:#d2e5d8,stroke:#38734d,color:#183923,stroke-width:2px;
-    classDef stop fill:#f4dadd,stroke:#b14253,color:#611c29,stroke-width:2px;
+    G -- No --> L["Suppress<br/>EXCEEDED_BUDGET"]
+    G -- Yes --> H["Display eligible<br/>WITHIN_BUDGET"]
+    classDef input stroke-width:1.5px;
+    classDef pass stroke-width:2.5px;
+    classDef stop stroke-width:2px,stroke-dasharray:5 3;
     class E,F,G input;
     class H pass;
     class S,L stop;
