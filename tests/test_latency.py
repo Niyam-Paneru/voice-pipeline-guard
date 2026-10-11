@@ -24,7 +24,6 @@ class LatencyTests(unittest.TestCase):
         gate.record("retrieve", 500, 1200, 1400)
         self.assertTrue(gate.displayable)
 
-
     def test_fractional_overrun_is_not_rounded_into_a_pass(self):
         gate = LatencyGate()
         gate.record("stage", 100, 0.0, 100.4)
@@ -56,6 +55,14 @@ class LatencyTests(unittest.TestCase):
             with self.subTest(budget=budget):
                 gate = LatencyGate()
                 gate.record("stage", budget, 0.0, 0.0)
+                self.assertEqual(gate.verdict, Verdict.INCOMPLETE)
+                self.assertFalse(gate.displayable)
+
+    def test_malformed_or_huge_time_does_not_crash(self):
+        for start, finish in [(10**1000, 1), ("bad", 1.0)]:
+            with self.subTest(start=start, finish=finish):
+                gate = LatencyGate()
+                gate.record("stage", 100, start, finish)
                 self.assertEqual(gate.verdict, Verdict.INCOMPLETE)
                 self.assertFalse(gate.displayable)
 
