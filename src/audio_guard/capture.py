@@ -25,9 +25,10 @@ def _read_bounded(read, max_bytes: int) -> bytes:
             break
         if not isinstance(chunk, (bytes, bytearray)):
             raise TypeError("audio_reader_must_return_bytes")
-        data = bytes(chunk)
-        chunks.append(data)
-        remaining -= len(data)
+        # Custom readers may ignore the requested size. Never buffer their surplus.
+        bounded_chunk = chunk[:remaining]
+        chunks.append(bytes(bounded_chunk))
+        remaining -= len(bounded_chunk)
 
     return b"".join(chunks)
 
