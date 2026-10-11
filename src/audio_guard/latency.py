@@ -18,19 +18,23 @@ class Stage:
         # Never round before comparing to a hard latency budget: 100.4 > 100.
         if self.completed_at_ms is None:
             return None
-        if not isfinite(self.started_at_ms) or not isfinite(self.completed_at_ms):
+        try:
+            if not isfinite(self.started_at_ms) or not isfinite(self.completed_at_ms):
+                return None
+            elapsed = self.completed_at_ms - self.started_at_ms
+            if not isfinite(elapsed) or elapsed < 0:
+                return None
+            return elapsed
+        except (TypeError, ValueError, OverflowError):
             return None
-        elapsed = self.completed_at_ms - self.started_at_ms
-        if not isfinite(elapsed) or elapsed < 0:
-            return None
-        return elapsed
 
     @property
     def budget_is_valid(self) -> bool:
         return (
             isinstance(self.budget_ms, (int, float))
-            and isfinite(self.budget_ms)
+            and not isinstance(self.budget_ms, bool)
             and self.budget_ms >= 0
+            and (not isinstance(self.budget_ms, float) or isfinite(self.budget_ms))
         )
 
 
