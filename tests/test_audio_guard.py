@@ -81,6 +81,24 @@ def test_rejects_oversized_input_without_reading_it() -> None:
     assert asked == [1_025], "must probe exactly one byte past the limit"
 
 
+def test_nonconforming_reader_cannot_expand_the_bounded_probe() -> None:
+    """A reader that ignores the requested length must not bypass the buffer limit."""
+    from audio_guard.capture import _read_bounded
+
+    requested: list[int] = []
+
+    def read(n: int) -> bytes:
+        requested.append(n)
+        return b"Z" * 100_000
+
+    probe = _read_bounded(read, max_bytes=32)
+    assert requested == [33]
+    assert probe == b"Z" * 33
+    result = read_capture(read, max_bytes=32)
+    assert result.rejection is Rejection.TOO_LARGE
+    assert requested == [33, 33]
+
+
 def test_accepts_chunked_reader_without_treating_first_chunk_as_the_body() -> None:
     payload = build_wav(frames=4_800)
     offset = 0
