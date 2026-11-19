@@ -1,10 +1,17 @@
 # Voice Pipeline Guard
 
-A Python implementation of two realtime voice boundaries: **bound capture before accepting it**, and **suppress output when timing evidence is missing or over budget**.
+Voice assistants have two ways to disappoint people: accept garbage audio, or respond after the conversation has moved on. This Python module tests **bounded WAV capture** and **whether timing evidence is good enough to release an output**.
 
-**In realtime systems, “eventually” is a suspiciously expensive word.**
+Malformed or oversized audio is rejected. An unfinished processing stage suppresses the output. “Eventually” is not a latency target.
 
-This is a **public sample from my private voice-system work**. The sample uses synthetic WAV inputs to make the guards easy to inspect. I can build and adapt the surrounding voice pipelines and provider integrations; live audio, transcripts, credentials, and deployment plumbing stay private.
+**Try it / check the behavior:**
+
+```bash
+PYTHONPATH=src python -m audio_guard.demo
+python -m pytest
+```
+
+Synthetic audio only: no microphone, live call, provider, or deployed voice assistant. [Verification](docs/verification.md).
 
 ## Capture: accept only valid, bounded audio
 
