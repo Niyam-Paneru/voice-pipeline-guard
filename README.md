@@ -1,10 +1,10 @@
 # Voice Pipeline Guard
 
-If a voice assistant takes forever to answer “hello,” the conversation has probably moved on. An expensive voicemail is still voicemail.
+The voice assistant has prepared a wonderful answer. Unfortunately, the caller hung up six seconds ago. At that point you're running a very expensive voicemail.
 
-This Python module guards two parts of realtime audio work: **input quality** and **timing evidence**. It does not make a slow response fast. It makes it harder to call a slow or unfinished response successful.
+This Python module deals with two less glamorous parts of realtime voice work: **is this even valid audio?** and **did the answer finish in time?** It can't speed up a slow model; it can stop the system from congratulating itself for being late.
 
-## Two checks, two different failure modes
+## Two ways to lose the conversation
 
 | Check | Pass | Fail |
 | --- | --- | --- |
@@ -29,4 +29,4 @@ The [capture code](src/audio_guard/capture.py), [latency gate](src/audio_guard/l
 
 No microphone, phone number, speech-to-text service, telephony provider, or production latency benchmark is bundled here. The test audio is synthetic, and this is a **guard module**, not an end-to-end voice receptionist.
 
-A good answer arriving after the conversation ends is still a bad conversation. [Verification](docs/verification.md) · [provenance](PROVENANCE.md).
+There are faster ways to say nothing than processing an entire response after nobody is listening. [Verification](docs/verification.md) · [provenance](PROVENANCE.md).
