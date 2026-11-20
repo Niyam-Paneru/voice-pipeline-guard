@@ -1,8 +1,8 @@
 # Voice Pipeline Guard
 
-Imagine your AI receptionist finally delivers the perfect answer. The caller left six seconds ago. Congratulations, your microphone just heard a fantastic monologue.
+Imagine the AI receptionist finally giving the perfect answer. The caller hung up six seconds ago. A perfect answer to an audience of zero.
 
-Voice assistants have to deal with two problems before the clever answer matters: **is the audio valid?** and **did the response finish before the moment passed?** This Python module handles those gates. It can't make a slow model faster, but it can stop calling a late response a win.
+I built this Python module around the less glamorous parts of a voice assistant: checking that the inputs are valid WAV audio, measuring how long processing took, and refusing to deliver an answer when its moment has passed. It can't make a slow model faster. It can stop me from pretending it was fast enough.
 
 ## Two doors between “hello” and an actual answer
 
