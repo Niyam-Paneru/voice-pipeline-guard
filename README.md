@@ -1,10 +1,10 @@
 # Voice Pipeline Guard
 
-A voice assistant that takes eleven seconds to answer “hello” is not a conversational breakthrough. It's a voicemail with a GPU bill.
+If a voice assistant takes forever to answer “hello,” the conversation has probably moved on. An expensive voicemail is still voicemail.
 
 This Python module guards two parts of realtime audio work: **input quality** and **timing evidence**. It does not make a slow response fast. It makes it harder to call a slow or unfinished response successful.
 
-## Two checks before anyone hears the answer
+## Two checks, two different failure modes
 
 | Check | Pass | Fail |
 | --- | --- | --- |
@@ -21,7 +21,7 @@ The timing gate makes three distinctions:
 | EXCEEDED_BUDGET | A stage exceeded its configured limit | No |
 | INCOMPLETE | Required completion timing missing or invalid | No |
 
-The third case matters. “We didn't measure the ending” isn't a new definition of fast.
+That last case matters: a missing end timestamp is not proof that the answer was fast.
 
 The [capture code](src/audio_guard/capture.py), [latency gate](src/audio_guard/latency.py), [tests](tests/), and [timing contract](docs/latency-contract.md) are the useful starting points. Metrics include timing/drop/display metadata but deliberately **not audio bytes or transcript text**.
 
