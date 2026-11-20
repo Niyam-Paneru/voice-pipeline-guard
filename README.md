@@ -1,39 +1,32 @@
 # Voice Pipeline Guard
 
-A voice assistant that takes forever to answer has become a very expensive voicemail.
+A voice assistant that takes eleven seconds to answer “hello” is not a conversational breakthrough. It's a voicemail with a GPU bill.
 
-This Python module handles two unglamorous problems from realtime audio work: **don't accept malformed/oversized recordings**, and **don't present an answer if the timing evidence says it was late or never finished**.
+This Python module guards two parts of realtime audio work: **input quality** and **timing evidence**. It does not make a slow response fast. It makes it harder to call a slow or unfinished response successful.
 
-## Two doors the audio has to get through
+## Two checks before anyone hears the answer
 
-**Door one — capture.** `read_capture()` reads only up to the configured size limit (plus a probe byte), then checks WAV structure, format, and duration. The input is either acceptable or it isn't; we don't pretend a truncated file is fine.
+| Check | Pass | Fail |
+| --- | --- | --- |
+| **Capture** | WAV structure, format, duration and size are within configured bounds | Reject malformed, oversized or truncated input |
+| **Timing** | Every required stage completed within its budget | Suppress incomplete or over-budget output |
 
-**Door two — timing.** A `LatencyGate` records stage timing. Missing or invalid completion times produce `INCOMPLETE`; a stage over budget produces `EXCEEDED_BUDGET`; complete, in-budget evidence produces `WITHIN_BUDGET`.
+The capture reader takes at most the configured size limit **plus a probe byte**; it doesn't need to swallow a huge upload before noticing it's huge.
 
-Only the last case is eligible to display. "Probably fast enough" is not a timing measurement.
+The timing gate makes three distinctions:
 
-`UtteranceMetrics` intentionally contains timing/drop/display metadata — **no transcript text or audio bytes**.
+| Timing result | What it means | Display eligible? |
+| --- | --- | --- |
+| WITHIN_BUDGET | Complete evidence; stages in budget | Yes |
+| EXCEEDED_BUDGET | A stage exceeded its configured limit | No |
+| INCOMPLETE | Required completion timing missing or invalid | No |
 
-## One answer, after two checks
+The third case matters. “We didn't measure the ending” isn't a new definition of fast.
 
-```mermaid
-flowchart TB
-    A["Audio arrives"] --> B{"Valid WAV within limits?"}
-    B -- No --> R["Reject capture"]
-    B -- Yes --> C["Record processing timings"]
-    C --> D{"Complete and within budget?"}
-    D -- No --> S["Suppress output"]
-    D -- Yes --> P["Eligible to display"]
-    classDef stopped fill:#F9EEE9,stroke:#A9694F,color:#603C2B;
-    classDef ready fill:#E8F5F0,stroke:#31846C,color:#17513F;
-    class R,S stopped;
-    class P ready;
-```
+The [capture code](src/audio_guard/capture.py), [latency gate](src/audio_guard/latency.py), [tests](tests/), and [timing contract](docs/latency-contract.md) are the useful starting points. Metrics include timing/drop/display metadata but deliberately **not audio bytes or transcript text**.
 
-Bad recordings never enter the timing stage. Incomplete or late stages never make the output eligible; the [latency contract](docs/latency-contract.md) distinguishes those reasons.
+## What it isn't
 
-See [capture.py](src/audio_guard/capture.py), [latency.py](src/audio_guard/latency.py), [the tests](tests/), and [the latency contract](docs/latency-contract.md).
+No microphone, phone number, speech-to-text service, telephony provider, or production latency benchmark is bundled here. The test audio is synthetic, and this is a **guard module**, not an end-to-end voice receptionist.
 
-### A reality check
-
-There is no microphone, telephony provider, transport, live transcript, or production latency claim in this repository. It's a runnable guard, not an end-to-end voice assistant. The audio is synthetic, which is convenient because it doesn't complain when the tests fail. [Verification](docs/verification.md) · [Provenance](PROVENANCE.md).
+A good answer arriving after the conversation ends is still a bad conversation. [Verification](docs/verification.md) · [provenance](PROVENANCE.md).
