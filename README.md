@@ -6,10 +6,17 @@ Voice assistants have to deal with two problems before the clever answer matters
 
 ## Two doors between “hello” and an actual answer
 
-| Check | Pass | Fail |
-| --- | --- | --- |
-| **Capture** | WAV structure, format, duration and size are within configured bounds | Reject malformed, oversized or truncated input |
-| **Timing** | Every required stage completed within its budget | Suppress incomplete or over-budget output |
+First, reject invalid audio. Then check the timing. A beautiful response that missed its deadline does not get a consolation prize.
+
+```mermaid
+flowchart TB
+    A["Audio arrives"] --> B{"Valid WAV within limits?"}
+    B -- No --> R["Reject capture"]
+    B -- Yes --> C["Record processing timings"]
+    C --> D{"Complete and within budget?"}
+    D -- No --> S["Suppress output"]
+    D -- Yes --> P["Eligible to display"]
+```
 
 The capture reader takes at most the configured size limit **plus a probe byte**; it doesn't need to swallow a huge upload before noticing it's huge.
 
@@ -29,4 +36,4 @@ The [capture code](src/audio_guard/capture.py), [latency gate](src/audio_guard/l
 
 No microphone, phone number, speech-to-text service, telephony provider, or production latency benchmark is bundled here. The test audio is synthetic, and this is a **guard module**, not an end-to-end voice receptionist.
 
-The best answer in the world is still not useful as a message to an empty line. [Verification](docs/verification.md) · [provenance](PROVENANCE.md).
+[Verification](docs/verification.md) · [provenance](PROVENANCE.md).
